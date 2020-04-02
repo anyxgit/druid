@@ -85,7 +85,7 @@ public class SQLUtils {
 
     public static FormatOption DEFAULT_FORMAT_OPTION = new FormatOption(true, true);
     public static FormatOption DEFAULT_LCASE_FORMAT_OPTION
-            = new FormatOption(false, true);
+    = new FormatOption(false, true);
 
     private final static Log LOG = LogFactory.getLog(SQLUtils.class);
 
@@ -289,7 +289,8 @@ public class SQLUtils {
             LOG.warn("format error, dbType : " + dbType, ex);
             return sql;
         } catch (ParserException ex) {
-            LOG.warn("format error", ex);
+            String errorMsg = String.format("format error, return as it is. dbType: %s, sql: %s", dbType, sql);
+            LOG.warn(errorMsg, ex);
             return sql;
         }
     }
@@ -311,10 +312,10 @@ public class SQLUtils {
     }
 
     public static String toSQLString(List<SQLStatement> statementList
-            , String dbType
-            , List<Object> parameters
-            , FormatOption option
-            , Map<String, String> tableMapping) {
+                                     , String dbType
+                                     , List<Object> parameters
+                                     , FormatOption option
+                                     , Map<String, String> tableMapping) {
         StringBuilder out = new StringBuilder();
         SQLASTOutputVisitor visitor = createFormatOutputVisitor(out, statementList, dbType);
         if (parameters != null) {
@@ -540,21 +541,31 @@ public class SQLUtils {
      */
     public static String buildToDate(String columnName, String tableAlias, String pattern, String dbType) {
         StringBuilder sql = new StringBuilder();
-        if (StringUtils.isEmpty(columnName)) return "";
-        if (StringUtils.isEmpty(dbType)) dbType = JdbcConstants.MYSQL;
+        if (StringUtils.isEmpty(columnName)) {
+            return "";
+        }
+        if (StringUtils.isEmpty(dbType)) {
+            dbType = JdbcConstants.MYSQL;
+        }
         String formatMethod = "";
         if (JdbcConstants.MYSQL.equalsIgnoreCase(dbType)) {
             formatMethod = "STR_TO_DATE";
-            if (StringUtils.isEmpty(pattern)) pattern = "%Y-%m-%d %H:%i:%s";
+            if (StringUtils.isEmpty(pattern)) {
+                pattern = "%Y-%m-%d %H:%i:%s";
+            }
         } else if (JdbcConstants.ORACLE.equalsIgnoreCase(dbType)) {
             formatMethod = "TO_DATE";
-            if (StringUtils.isEmpty(pattern)) pattern = "yyyy-mm-dd hh24:mi:ss";
+            if (StringUtils.isEmpty(pattern)) {
+                pattern = "yyyy-mm-dd hh24:mi:ss";
+            }
         } else {
             return "";
             // expand date's handle method for other database
         }
         sql.append(formatMethod).append("(");
-        if (!StringUtils.isEmpty(tableAlias)) sql.append(tableAlias).append(".");
+        if (!StringUtils.isEmpty(tableAlias)) {
+            sql.append(tableAlias).append(".");
+        }
         sql.append(columnName).append(",");
         sql.append("'");
         sql.append(pattern);
@@ -826,32 +837,32 @@ public class SQLUtils {
             SQLBinaryOperator notOp = null;
 
             switch (op){
-                case Equality:
-                    notOp = SQLBinaryOperator.LessThanOrGreater;
-                    break;
-                case LessThanOrEqualOrGreaterThan:
-                    notOp = SQLBinaryOperator.Equality;
-                    break;
-                case LessThan:
-                    notOp = SQLBinaryOperator.GreaterThanOrEqual;
-                    break;
-                case LessThanOrEqual:
-                    notOp = SQLBinaryOperator.GreaterThan;
-                    break;
-                case GreaterThan:
-                    notOp = SQLBinaryOperator.LessThanOrEqual;
-                    break;
-                case GreaterThanOrEqual:
-                    notOp = SQLBinaryOperator.LessThan;
-                    break;
-                case Is:
-                    notOp = SQLBinaryOperator.IsNot;
-                    break;
-                case IsNot:
-                    notOp = SQLBinaryOperator.Is;
-                    break;
-                default:
-                    break;
+            case Equality:
+                notOp = SQLBinaryOperator.LessThanOrGreater;
+                break;
+            case LessThanOrEqualOrGreaterThan:
+                notOp = SQLBinaryOperator.Equality;
+                break;
+            case LessThan:
+                notOp = SQLBinaryOperator.GreaterThanOrEqual;
+                break;
+            case LessThanOrEqual:
+                notOp = SQLBinaryOperator.GreaterThan;
+                break;
+            case GreaterThan:
+                notOp = SQLBinaryOperator.LessThanOrEqual;
+                break;
+            case GreaterThanOrEqual:
+                notOp = SQLBinaryOperator.LessThan;
+                break;
+            case Is:
+                notOp = SQLBinaryOperator.IsNot;
+                break;
+            case IsNot:
+                notOp = SQLBinaryOperator.Is;
+                break;
+            default:
+                break;
             }
 
 
